@@ -160,8 +160,7 @@ class MY_Model extends CI_Model
      */
     public function like($like, $value = null)
     {
-        if (!is_array($like))
-        {
+        if (!is_array($like)) {
             $like = array($like => $value);
         }
 
@@ -269,10 +268,8 @@ class MY_Model extends CI_Model
     protected function handle_process()
     {
         //set select field
-        if (isset($this->_select))
-        {
-            foreach ($this->_select as $select)
-            {
+        if (isset($this->_select)) {
+            foreach ($this->_select as $select) {
                 $this->db->select($select, false);
             }
 
@@ -280,8 +277,7 @@ class MY_Model extends CI_Model
         }
 
         //run each where that was passed
-        if (isset($this->_where))
-        {
+        if (isset($this->_where)) {
             foreach ($this->_where as $k => $v) {
                 if (is_array($v)) {
                     $this->db->where_in($k, $v);
@@ -298,8 +294,7 @@ class MY_Model extends CI_Model
         }
 
         //run each like that was passed
-        if (isset($this->_like))
-        {
+        if (isset($this->_like)) {
             foreach ($this->_like as $like) {
                 $this->db->like($like);
             }
@@ -308,8 +303,7 @@ class MY_Model extends CI_Model
         }
 
         //set limit and offset
-        if (isset($this->_limit) && isset($this->_offset))
-        {
+        if (isset($this->_limit) && isset($this->_offset)) {
             $this->db->limit($this->_limit, $this->_offset);
 
             $this->_limit  = null;
@@ -317,8 +311,7 @@ class MY_Model extends CI_Model
         }
 
         //set the order
-        if (isset($this->_order_by) && isset($this->_order))
-        {
+        if (isset($this->_order_by) && isset($this->_order)) {
             $this->db->order_by($this->_order_by, $this->_order);
 
             $this->_order    = null;
@@ -326,8 +319,7 @@ class MY_Model extends CI_Model
         }
 
         //set the order field
-        if (isset($this->_order_by_field))
-        {
+        if (isset($this->_order_by_field)) {
             $this->db->order_by($this->_order_by_field);
 
             $this->_order_by_field = null;
@@ -371,7 +363,7 @@ class MY_Model extends CI_Model
      * @param array $data
      *
      */
-    function add($data = null)
+    public function insert($data = null)
     {
         $external_data = array(
             'add_time' => $this->_time,
@@ -392,7 +384,7 @@ class MY_Model extends CI_Model
      * @param array $data
      *
      */
-    function edit($data = null)
+    public function update($data = null)
     {
         // @TODO
     }
@@ -410,7 +402,7 @@ class MY_Model extends CI_Model
             "edit_time" => $this->_time,
         );
 
-        if(is_array($id)) {
+        if (is_array($id)) {
             $this->db->where_in($this->_key, $id)->update($this->tables['master'], $data);
         } else {
             $this->db->where($this->_key, $id)->update($this->tables['master'], $data);
