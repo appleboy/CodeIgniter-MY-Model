@@ -362,7 +362,7 @@ class MY_Model extends CI_Model
     public function item($id = null)
     {
         $this->limit(1);
-        $this->where($this->tables['master'] . $this->_key, $id);
+        $this->where($this->tables['master'] . '.' . $this->_key, $id);
 
         $this->items();
 
