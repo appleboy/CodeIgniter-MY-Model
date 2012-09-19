@@ -14,7 +14,7 @@ class MY_Model extends CI_Model
     /**
      * Holds an array of tables used
      *
-     * @var string
+     * @param string
      */
     public $tables = array();
 
@@ -31,6 +31,14 @@ class MY_Model extends CI_Model
      * @var int
      */
     public $_time = null;
+
+    /**
+     * Support for soft delete
+     *
+     * @var
+     */
+     protected $soft_delete = false;
+     protected $soft_delete_key = 'delete';
 
     /**
      * Where
@@ -99,7 +107,6 @@ class MY_Model extends CI_Model
      * __construct
      *
      * @return void
-     * @author appleboy
      */
     public function __construct()
     {
@@ -112,7 +119,8 @@ class MY_Model extends CI_Model
     /**
      * set limit for $this->db->limit
      *
-     * @var string
+     * @param string
+     * @return object
      */
     public function limit($limit)
     {
@@ -124,7 +132,8 @@ class MY_Model extends CI_Model
     /**
      * set offset for $this->db->limit
      *
-     * @var string
+     * @param string
+     * @return object
      */
     public function offset($offset)
     {
@@ -136,8 +145,9 @@ class MY_Model extends CI_Model
     /**
      * set where for $this->db->where
      *
-     * @var array or string
-     * @var string
+     * @param mixed
+     * @param string
+     * @return object
      */
     public function where($where, $value = null)
     {
@@ -155,13 +165,13 @@ class MY_Model extends CI_Model
     /**
      * set search function for $this->db->like
      *
-     * @var array or string
-     * @var string
+     * @param mixed
+     * @param string
+     * @return object
      */
     public function like($like, $value = null)
     {
-        if (!is_array($like))
-        {
+        if (!is_array($like)) {
             $like = array($like => $value);
         }
 
@@ -173,7 +183,8 @@ class MY_Model extends CI_Model
     /**
      * set select value for $this->db->select
      *
-     * @var string
+     * @param string
+     * @return object
      */
     public function select($select)
     {
@@ -185,8 +196,9 @@ class MY_Model extends CI_Model
     /**
      * set order value for $this->db->order
      *
-     * @var string
-     * @var string
+     * @param string
+     * @param string
+     * @return object
      */
     public function order_by($by, $order = 'desc')
     {
@@ -199,8 +211,9 @@ class MY_Model extends CI_Model
     /**
      * set order by field value
      *
-     * @var string
-     * @var string
+     * @param string
+     * @param string
+     * @return object
      */
     public function order_by_field($by, $value = '')
     {
@@ -264,15 +277,13 @@ class MY_Model extends CI_Model
     /**
      * get rows array data
      *
-     * @return array
+     * @return void
      */
     protected function handle_process()
     {
         //set select field
-        if (isset($this->_select))
-        {
-            foreach ($this->_select as $select)
-            {
+        if (isset($this->_select)) {
+            foreach ($this->_select as $select) {
                 $this->db->select($select, false);
             }
 
@@ -280,8 +291,7 @@ class MY_Model extends CI_Model
         }
 
         //run each where that was passed
-        if (isset($this->_where))
-        {
+        if (isset($this->_where)) {
             foreach ($this->_where as $k => $v) {
                 if (is_array($v)) {
                     $this->db->where_in($k, $v);
@@ -298,8 +308,7 @@ class MY_Model extends CI_Model
         }
 
         //run each like that was passed
-        if (isset($this->_like))
-        {
+        if (isset($this->_like)) {
             foreach ($this->_like as $like) {
                 $this->db->like($like);
             }
@@ -308,8 +317,7 @@ class MY_Model extends CI_Model
         }
 
         //set limit and offset
-        if (isset($this->_limit) && isset($this->_offset))
-        {
+        if (isset($this->_limit) && isset($this->_offset)) {
             $this->db->limit($this->_limit, $this->_offset);
 
             $this->_limit  = null;
@@ -317,8 +325,7 @@ class MY_Model extends CI_Model
         }
 
         //set the order
-        if (isset($this->_order_by) && isset($this->_order))
-        {
+        if (isset($this->_order_by) && isset($this->_order)) {
             $this->db->order_by($this->_order_by, $this->_order);
 
             $this->_order    = null;
@@ -326,8 +333,7 @@ class MY_Model extends CI_Model
         }
 
         //set the order field
-        if (isset($this->_order_by_field))
-        {
+        if (isset($this->_order_by_field)) {
             $this->db->order_by($this->_order_by_field);
 
             $this->_order_by_field = null;
@@ -338,7 +344,6 @@ class MY_Model extends CI_Model
      * items
      *
      * @return object
-     * @author appleboy
      */
     public function items()
     {
@@ -353,12 +358,11 @@ class MY_Model extends CI_Model
      * item
      *
      * @return object
-     * @author appleboy
      */
     public function item($id = null)
     {
         $this->limit(1);
-        $this->where($this->tables['master'] . $this->_key, $id);
+        $this->where($this->tables['master'] . '.' . $this->_key, $id);
 
         $this->items();
 
@@ -368,10 +372,10 @@ class MY_Model extends CI_Model
     /**
      * Insert Data API
      *
-     * @param array $data
-     *
+     * @param array
+     * @return int
      */
-    function add($data = null)
+    public function insert($data = null)
     {
         $external_data = array(
             'add_time' => $this->_time,
@@ -389,33 +393,60 @@ class MY_Model extends CI_Model
     /**
      * Update Data API
      *
-     * @param array $data
-     *
+     * @param  mixed
+     * @param  array
+     * @return bool
      */
-    function edit($data = null)
+    public function update($id, $data = null)
     {
-        // @TODO
+        if (is_array($id)) {
+            $this->db->where_in($this->_key, $id);
+        } else {
+            $this->db->where($this->_key, $id);
+        }
+
+        $external_data = array(
+            'edit_time' => $this->_time
+        );
+
+        $data = array_merge($data, $external_data);
+
+        if (isset($data[$this->_key])) {
+            unset($data[$this->_key]);
+        }
+
+        $result = $this->db->set($data)->update($this->tables['master']);
+
+        return $result;
     }
 
     /**
      * Delete Data API
      *
-     * @param (int or array) $id
-     *
+     * @param  mixed
+     * @return bool
      */
     public function delete($id)
     {
-        $data = array(
-            "delete" => 1,
-            "edit_time" => $this->_time,
-        );
-
-        if(is_array($id)) {
-            $this->db->where_in($this->_key, $id)->update($this->tables['master'], $data);
+        if (is_array($id)) {
+            $this->db->where_in($this->_key, $id);
         } else {
-            $this->db->where($this->_key, $id)->update($this->tables['master'], $data);
+            $this->db->where($this->_key, $id);
         }
 
-        return true;
+        if ($this->soft_delete) {
+            $data = array(
+                $this->soft_delete_key => 1,
+                "edit_time" => $this->_time,
+            );
+
+            // update soft delete key
+            $result = $this->db->update($this->tables['master'], $data);
+        } else {
+            // delete row
+            $result = $this->db->delete($this->tables['master']);
+        }
+
+        return $result;
     }
 }
