@@ -76,6 +76,13 @@ class MY_Model extends CI_Model
     public $_offset = null;
 
     /**
+     * Group By
+     *
+     * @var string
+     */
+    public $_group_by = null;
+
+    /**
      * Order By
      *
      * @var string
@@ -189,6 +196,19 @@ class MY_Model extends CI_Model
     public function select($select)
     {
         $this->_select[] = $select;
+
+        return $this;
+    }
+
+    /**
+     * set order value for $this->db->group_by
+     *
+     * @param string
+     * @return object
+     */
+    public function group_by($by)
+    {
+        $this->_group_by = $by;
 
         return $this;
     }
@@ -322,6 +342,13 @@ class MY_Model extends CI_Model
 
             $this->_limit  = null;
             $this->_offset = null;
+        }
+
+        //set the order
+        if (isset($this->_group_by)) {
+            $this->db->group_by($this->_group_by);
+
+            $this->_group_by = null;
         }
 
         //set the order
