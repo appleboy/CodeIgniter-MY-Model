@@ -396,7 +396,7 @@ class MY_Model extends CI_Model
         return $this;
     }
 
-    /*
+    /**
      * Insert Data API
      *
      * @param array
