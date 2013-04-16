@@ -344,6 +344,13 @@ class MY_Model extends CI_Model
             $this->_offset = null;
         }
 
+        //set limit
+        if (isset($this->_limit)) {
+            $this->db->limit($this->_limit);
+
+            $this->_limit  = null;
+        }
+
         //set the order
         if (isset($this->_group_by)) {
             $this->db->group_by($this->_group_by);
@@ -394,6 +401,20 @@ class MY_Model extends CI_Model
         $this->items();
 
         return $this;
+    }
+
+    /**
+     * counts
+     *
+     * @return int
+     */
+    public function counts()
+    {
+        $this->handle_process();
+
+        $this->count = $this->db->get($this->tables['master'])->num_rows();
+
+        return $this->count;
     }
 
     /**
