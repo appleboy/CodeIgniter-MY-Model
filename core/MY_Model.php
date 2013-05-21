@@ -76,13 +76,6 @@ class MY_Model extends CI_Model
     public $_offset = null;
 
     /**
-     * Group By
-     *
-     * @var string
-     */
-    public $_group_by = null;
-
-    /**
      * Order By
      *
      * @var string
@@ -95,6 +88,13 @@ class MY_Model extends CI_Model
      * @var string
      */
     public $_order_by_field = null;
+
+    /**
+     * Group By
+     *
+     * @var string
+     */
+    public $_group_by = null;
 
     /**
      * Order
@@ -201,9 +201,9 @@ class MY_Model extends CI_Model
     }
 
     /**
-     * set order value for $this->db->group_by
+     * set group value for $this->db->group_by()
      *
-     * @param string
+     * @param string or array
      * @return object
      */
     public function group_by($by)
@@ -352,13 +352,6 @@ class MY_Model extends CI_Model
         }
 
         //set the order
-        if (isset($this->_group_by)) {
-            $this->db->group_by($this->_group_by);
-
-            $this->_group_by = null;
-        }
-
-        //set the order
         if (isset($this->_order_by) && isset($this->_order)) {
             $this->db->order_by($this->_order_by, $this->_order);
 
@@ -372,6 +365,13 @@ class MY_Model extends CI_Model
 
             $this->_order_by_field = null;
         }
+
+        //set the group field
+        if (isset($this->_group_by)) {
+            $this->db->group_by($this->_group_by);
+
+            $this->_group_by = null;
+        }
     }
 
     /**
@@ -384,21 +384,6 @@ class MY_Model extends CI_Model
         $this->handle_process();
 
         $this->response = $this->db->get($this->tables['master']);
-
-        return $this;
-    }
-
-    /**
-     * item
-     *
-     * @return object
-     */
-    public function item($id = null)
-    {
-        $this->limit(1);
-        $this->where($this->tables['master'] . '.' . $this->_key, $id);
-
-        $this->items();
 
         return $this;
     }
@@ -418,6 +403,21 @@ class MY_Model extends CI_Model
     }
 
     /**
+     * item
+     *
+     * @return object
+     */
+    public function item($id = null)
+    {
+        $this->limit(1);
+        $this->where($this->tables['master'] . '.' . $this->_key, $id);
+
+        $this->items();
+
+        return $this;
+    }
+
+    /*
      * Insert Data API
      *
      * @param array
