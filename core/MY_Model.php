@@ -403,6 +403,28 @@ class MY_Model extends CI_Model
     }
 
     /**
+     * filter data from database table.
+     * 
+     * @param string
+     * @param array
+     * @return array
+     */
+    public function filter_data($table, $data)
+    {
+        $filtered_data = array();
+        $columns = $this->db->list_fields($table);
+
+        if (is_array($data)) {
+            foreach ($columns as $column) {
+                if (array_key_exists($column, $data))
+                    $filtered_data[$column] = $data[$column];
+            }
+        }
+
+        return $filtered_data;
+    }
+
+    /**
      * item
      *
      * @return object
