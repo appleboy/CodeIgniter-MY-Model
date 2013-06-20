@@ -111,6 +111,20 @@ class MY_Model extends CI_Model
     protected $response = null;
 
     /**
+     * message
+     *
+     * @var string
+     **/
+    protected $messages;
+
+    /**
+     * error message
+     *
+     * @var string
+     **/
+    protected $errors;
+
+    /**
      * __construct
      *
      * @return void
@@ -403,12 +417,27 @@ class MY_Model extends CI_Model
     }
 
     /**
-     * filter data from database table.
-     * 
-     * @param string
-     * @param array
-     * @return array
+     * item
+     *
+     * @return object
      */
+    public function item($id = null)
+    {
+        $this->limit(1);
+        $this->where($this->tables['master'] . '.' . $this->_key, $id);
+
+        $this->items();
+
+        return $this;
+    }
+
+    /**
+    * filter data from database table.
+    *
+    * @param string
+    * @param array
+    * @return array
+    */
     public function filter_data($table, $data)
     {
         $filtered_data = array();
@@ -422,21 +451,6 @@ class MY_Model extends CI_Model
         }
 
         return $filtered_data;
-    }
-
-    /**
-     * item
-     *
-     * @return object
-     */
-    public function item($id = null)
-    {
-        $this->limit(1);
-        $this->where($this->tables['master'] . '.' . $this->_key, $id);
-
-        $this->items();
-
-        return $this;
     }
 
     /*
@@ -518,5 +532,67 @@ class MY_Model extends CI_Model
         }
 
         return $result;
+    }
+
+    /**
+     * set_message
+     *
+     * Set a message
+     *
+     * @return void
+     */
+    public function set_message($message)
+    {
+        $this->messages[] = $message;
+
+        return $message;
+    }
+
+    /**
+     * messages
+     *
+     * Get the messages
+     *
+     * @return void
+     */
+    public function messages()
+    {
+        $_output = '';
+        foreach ($this->messages as $message) {
+            $_output .= ((empty($_output)) ? '' : ', ') . $message;
+        }
+
+        return $_output;
+    }
+
+    /**
+     * set_error
+     *
+     * Set an error message
+     *
+     * @return void
+     */
+    public function set_error($error)
+    {
+        $this->errors[] = $error;
+
+        return $error;
+    }
+
+    /**
+     * errors
+     *
+     * Get the error message
+     *
+     * @return void
+     */
+    public function errors()
+    {
+        $_output = '';
+        foreach ($this->errors as $error) {
+            $_output .= ((empty($_output)) ? '' : ', ') . $error;
+        }
+
+        return $_output;
     }
 }
