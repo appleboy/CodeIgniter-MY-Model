@@ -118,6 +118,13 @@ class MY_Model extends CI_Model
     protected $messages;
 
     /**
+     * error code number
+     *
+     * @var string
+     **/
+    protected $error_code;
+
+    /**
      * error message
      *
      * @var string
@@ -594,5 +601,31 @@ class MY_Model extends CI_Model
         }
 
         return $_output;
+    }
+
+    /**
+     * set_error_code
+     *
+     * Set an error code number
+     *
+     * @return void
+     */
+    public function set_error_code($code)
+    {
+        $this->error_code = $code;
+
+        return $code;
+    }
+
+    /**
+     * error_code
+     *
+     * Get the error code number
+     *
+     * @return void
+     */
+    public function error_code()
+    {
+        return $this->error_code;
     }
 }
