@@ -418,7 +418,7 @@ class MY_Model extends CI_Model
     {
         $this->handle_process();
 
-        $this->count = $this->db->get($this->tables['master'])->num_rows();
+        $this->count = $this->response->num_rows();
 
         return $this->count;
     }
