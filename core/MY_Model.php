@@ -57,9 +57,16 @@ class MY_Model extends CI_Model
     /**
      * Select
      *
-     * @var string
+     * @var array
      */
     public $_select = array();
+
+    /**
+     * join
+     *
+     * @var array
+     */
+    public $_join = array();
 
     /**
      * Limit
@@ -209,6 +216,22 @@ class MY_Model extends CI_Model
     }
 
     /**
+     * set search function for $this->db->like
+     *
+     * @param mixed
+     * @param string
+     * @return object
+     */
+    public function join($table, $where, $method = "left")
+    {
+        $join = [$table, $where, $method];
+
+        array_push($this->_join, $join);
+
+        return $this;
+    }
+
+    /**
      * set select value for $this->db->select
      *
      * @param string
@@ -331,6 +354,14 @@ class MY_Model extends CI_Model
             $this->_select = array();
         }
 
+        if (isset($this->_join)) {
+            foreach ($this->_join as $row) {
+                $this->db->join($row[0], $row[1], $row[2]);
+            }
+
+            $this->_join = array();
+        }
+
         //run each where that was passed
         if (isset($this->_where)) {
             foreach ($this->_where as $k => $v) {
@@ -405,7 +436,6 @@ class MY_Model extends CI_Model
         $this->handle_process();
 
         $this->response = $this->db->get($this->tables['master']);
-
         return $this;
     }
 
@@ -475,6 +505,8 @@ class MY_Model extends CI_Model
 
         // merge array data
         $data = array_merge($data, $external_data);
+        $data = $this->filter_data($this->tables['master'], $data);
+
         // insert to database
         $this->db->insert($this->tables['master'], $data);
 
@@ -501,6 +533,7 @@ class MY_Model extends CI_Model
         );
 
         $data = array_merge($data, $external_data);
+        $data = $this->filter_data($this->tables['master'], $data);
 
         if (isset($data[$this->_key])) {
             unset($data[$this->_key]);
